@@ -336,6 +336,16 @@ export default function TestContainer({ attemptId }) {
       selectedOption: option
     });
   };
+  // Auto Batch
+  useEffect(() => {
+  const batchInterval = setInterval(() => {
+    if (!isAttemptLocked()) {
+      sendLogsBatch();
+    }
+  }, 10000);
+
+  return () => clearInterval(batchInterval);
+}, []);
 
   /* ---------- FORCE SUBMIT ---------- */
 

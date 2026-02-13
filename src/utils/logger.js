@@ -15,7 +15,7 @@ export function logEvent(eventType, attemptId, questionId, metadata = {}) {
 
   const event = {
     eventType,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toString(),
     attemptId,
     questionId,
     metadata

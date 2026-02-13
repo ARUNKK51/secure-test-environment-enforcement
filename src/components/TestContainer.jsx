@@ -286,41 +286,59 @@ export default function TestContainer({ attemptId }) {
 
   /* ---------- MONITORING ---------- */
 
-  useEffect(() => {
-    if (!started || isAttemptLocked()) return;
+ useEffect(() => {
+  if (!started || isAttemptLocked()) return;
 
-    const registerViolation = (type) => {
-      logEvent(type, attemptId, null, { violation: true });
+  const registerViolation = (type) => {
+    logEvent(type, attemptId, null, { violation: true });
 
-      setViolations((prev) => {
-        const newCount = prev + 1;
-        if (newCount >= MAX_VIOLATIONS) {
-          handleForceSubmit("MAX_VIOLATIONS_REACHED");
-        }
-        return newCount;
-      });
-    };
-
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
-        registerViolation("FULLSCREEN_EXIT");
+    setViolations((prev) => {
+      const newCount = prev + 1;
+      if (newCount >= MAX_VIOLATIONS) {
+        handleForceSubmit("MAX_VIOLATIONS_REACHED");
       }
-    };
+      return newCount;
+    });
+  };
 
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        registerViolation("TAB_SWITCH");
-      }
-    };
+  const handleFullscreenChange = () => {
+    if (!document.fullscreenElement) {
+      registerViolation("FULLSCREEN_EXIT");
+    }
+  };
 
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      registerViolation("TAB_SWITCH");
+    }
+  };
 
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [started]);
+  /* ---------- COPY / PASTE HANDLERS ---------- */
+
+  const handleCopy = () => {
+    logEvent("COPY_ATTEMPT", attemptId, null, {});
+  };
+
+  const handlePaste = () => {
+    logEvent("PASTE_ATTEMPT", attemptId, null, {});
+  };
+
+  /* ---------- ADD LISTENERS ---------- */
+
+  document.addEventListener("fullscreenchange", handleFullscreenChange);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  document.addEventListener("copy", handleCopy);
+  document.addEventListener("paste", handlePaste);
+
+  /* ---------- CLEANUP ---------- */
+
+  return () => {
+    document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    document.removeEventListener("copy", handleCopy);
+    document.removeEventListener("paste", handlePaste);
+  };
+}, [started]);
 
   /* ---------- ANSWER SELECTION ---------- */
 
